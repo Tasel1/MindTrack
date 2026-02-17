@@ -1,46 +1,37 @@
-chunk-KDCVS43I.js?v=7ec42f4a:21609 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
-react-router-dom.js?v=7ec42f4a:209 Uncaught Error: You cannot render a <Router> inside another <Router>. You should never have more than one in your app.
-    at invariant (react-router-dom.js?v=7ec42f4a:209:11)
-    at Router (react-router-dom.js?v=7ec42f4a:4552:35)
-    at renderWithHooks (chunk-KDCVS43I.js?v=7ec42f4a:11596:26)
-    at mountIndeterminateComponent (chunk-KDCVS43I.js?v=7ec42f4a:14974:21)
-    at beginWork (chunk-KDCVS43I.js?v=7ec42f4a:15962:22)
-    at HTMLUnknownElement.callCallback2 (chunk-KDCVS43I.js?v=7ec42f4a:3680:22)
-    at Object.invokeGuardedCallbackDev (chunk-KDCVS43I.js?v=7ec42f4a:3705:24)
-    at invokeGuardedCallback (chunk-KDCVS43I.js?v=7ec42f4a:3739:39)
-    at beginWork$1 (chunk-KDCVS43I.js?v=7ec42f4a:19818:15)
-    at performUnitOfWork (chunk-KDCVS43I.js?v=7ec42f4a:19251:20)
-react-router-dom.js?v=7ec42f4a:209 Uncaught Error: You cannot render a <Router> inside another <Router>. You should never have more than one in your app.
-    at invariant (react-router-dom.js?v=7ec42f4a:209:11)
-    at Router (react-router-dom.js?v=7ec42f4a:4552:35)
-    at renderWithHooks (chunk-KDCVS43I.js?v=7ec42f4a:11596:26)
-    at mountIndeterminateComponent (chunk-KDCVS43I.js?v=7ec42f4a:14974:21)
-    at beginWork (chunk-KDCVS43I.js?v=7ec42f4a:15962:22)
-    at HTMLUnknownElement.callCallback2 (chunk-KDCVS43I.js?v=7ec42f4a:3680:22)
-    at Object.invokeGuardedCallbackDev (chunk-KDCVS43I.js?v=7ec42f4a:3705:24)
-    at invokeGuardedCallback (chunk-KDCVS43I.js?v=7ec42f4a:3739:39)
-    at beginWork$1 (chunk-KDCVS43I.js?v=7ec42f4a:19818:15)
-    at performUnitOfWork (chunk-KDCVS43I.js?v=7ec42f4a:19251:20)
-chunk-KDCVS43I.js?v=7ec42f4a:14080 The above error occurred in the <Router> component:
-
-    at Router (http://localhost:3001/node_modules/.vite/deps/react-router-dom.js?v=7ec42f4a:4544:15)
-    at BrowserRouter (http://localhost:3001/node_modules/.vite/deps/react-router-dom.js?v=7ec42f4a:5290:5)
-    at AuthProvider (http://localhost:3001/src/hooks/useAuth.jsx:21:32)
-    at App
-    at Router (http://localhost:3001/node_modules/.vite/deps/react-router-dom.js?v=7ec42f4a:4544:15)
-    at BrowserRouter (http://localhost:3001/node_modules/.vite/deps/react-router-dom.js?v=7ec42f4a:5290:5)
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
-logCapturedError @ chunk-KDCVS43I.js?v=7ec42f4a:14080
-chunk-KDCVS43I.js?v=7ec42f4a:19466 Uncaught Error: You cannot render a <Router> inside another <Router>. You should never have more than one in your app.
-    at invariant (react-router-dom.js?v=7ec42f4a:209:11)
-    at Router (react-router-dom.js?v=7ec42f4a:4552:35)
-    at renderWithHooks (chunk-KDCVS43I.js?v=7ec42f4a:11596:26)
-    at mountIndeterminateComponent (chunk-KDCVS43I.js?v=7ec42f4a:14974:21)
-    at beginWork (chunk-KDCVS43I.js?v=7ec42f4a:15962:22)
-    at beginWork$1 (chunk-KDCVS43I.js?v=7ec42f4a:19806:22)
-    at performUnitOfWork (chunk-KDCVS43I.js?v=7ec42f4a:19251:20)
-    at workLoopSync (chunk-KDCVS43I.js?v=7ec42f4a:19190:13)
-    at renderRootSync (chunk-KDCVS43I.js?v=7ec42f4a:19169:15)
-    at recoverFromConcurrentError (chunk-KDCVS43I.js?v=7ec42f4a:18786:28)
+chunk-KDCVS43I.js?v=2fdcd44c:21609 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+react-router-dom.js?v=d178e0bb:4436 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+warnOnce @ react-router-dom.js?v=d178e0bb:4436
+logDeprecation @ react-router-dom.js?v=d178e0bb:4439
+logV6DeprecationWarnings @ react-router-dom.js?v=d178e0bb:4442
+(anonymous) @ react-router-dom.js?v=d178e0bb:5314
+commitHookEffectListMount @ chunk-KDCVS43I.js?v=2fdcd44c:16963
+commitPassiveMountOnFiber @ chunk-KDCVS43I.js?v=2fdcd44c:18206
+commitPassiveMountEffects_complete @ chunk-KDCVS43I.js?v=2fdcd44c:18179
+commitPassiveMountEffects_begin @ chunk-KDCVS43I.js?v=2fdcd44c:18169
+commitPassiveMountEffects @ chunk-KDCVS43I.js?v=2fdcd44c:18159
+flushPassiveEffectsImpl @ chunk-KDCVS43I.js?v=2fdcd44c:19543
+flushPassiveEffects @ chunk-KDCVS43I.js?v=2fdcd44c:19500
+(anonymous) @ chunk-KDCVS43I.js?v=2fdcd44c:19381
+workLoop @ chunk-KDCVS43I.js?v=2fdcd44c:197
+flushWork @ chunk-KDCVS43I.js?v=2fdcd44c:176
+performWorkUntilDeadline @ chunk-KDCVS43I.js?v=2fdcd44c:384
+react-router-dom.js?v=d178e0bb:4436 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+warnOnce @ react-router-dom.js?v=d178e0bb:4436
+logDeprecation @ react-router-dom.js?v=d178e0bb:4439
+logV6DeprecationWarnings @ react-router-dom.js?v=d178e0bb:4445
+(anonymous) @ react-router-dom.js?v=d178e0bb:5314
+commitHookEffectListMount @ chunk-KDCVS43I.js?v=2fdcd44c:16963
+commitPassiveMountOnFiber @ chunk-KDCVS43I.js?v=2fdcd44c:18206
+commitPassiveMountEffects_complete @ chunk-KDCVS43I.js?v=2fdcd44c:18179
+commitPassiveMountEffects_begin @ chunk-KDCVS43I.js?v=2fdcd44c:18169
+commitPassiveMountEffects @ chunk-KDCVS43I.js?v=2fdcd44c:18159
+flushPassiveEffectsImpl @ chunk-KDCVS43I.js?v=2fdcd44c:19543
+flushPassiveEffects @ chunk-KDCVS43I.js?v=2fdcd44c:19500
+(anonymous) @ chunk-KDCVS43I.js?v=2fdcd44c:19381
+workLoop @ chunk-KDCVS43I.js?v=2fdcd44c:197
+flushWork @ chunk-KDCVS43I.js?v=2fdcd44c:176
+performWorkUntilDeadline @ chunk-KDCVS43I.js?v=2fdcd44c:384
+:5002/api/v1/psychologists/export/1?format=pdf:1  Failed to load resource: the server responded with a status of 400 (Bad Request)
+Statistics.jsx:139 Export error: Error: Failed to generate PDF: WinAnsi cannot encode "ч" (0x0447)
+    at handleExport (Statistics.jsx:121:15)
+handleExport @ Statistics.jsx:139

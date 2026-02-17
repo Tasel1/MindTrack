@@ -11,7 +11,6 @@ CREATE TABLE users (
     role VARCHAR(20) NOT NULL CHECK (role IN ('student', 'psychologist', 'admin')),
     school_id INTEGER,
     date_of_birth DATE,
-    parent_email VARCHAR(255),
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

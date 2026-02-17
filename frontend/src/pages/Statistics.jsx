@@ -30,8 +30,17 @@ const StatisticsPage = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [schoolId, setSchoolId] = useState('');
+  const [schoolId, setSchoolId] = useState('1');
   const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
+
+  // Mock schools data
+  const schools = [
+    { id: 1, name: 'Central High School' },
+    { id: 2, name: 'Eastside Academy' },
+    { id: 3, name: 'Westfield Secondary School' },
+    { id: 4, name: 'Northview Middle School' },
+    { id: 5, name: 'Southport High School' }
+  ];
 
   // Mock data for demonstration
   const mockStats = {
@@ -76,13 +85,61 @@ const StatisticsPage = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     // In a real app, we would call the API here
     // For now, we'll just reload the mock data
     setTimeout(() => {
       setStats(mockStats);
       setLoading(false);
     }, 1000);
+  };
+
+  const handleExport = async (format) => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      const token = localStorage.getItem('accessToken');
+      const schoolIdToUse = schoolId || '1'; // Default to 1 if not provided
+      
+      // Build query parameters
+      const params = new URLSearchParams();
+      params.append('format', format);
+      if (dateRange.startDate) params.append('startDate', dateRange.startDate);
+      if (dateRange.endDate) params.append('endDate', dateRange.endDate);
+      
+      const response = await fetch(`http://localhost:5002/api/v1/psychologists/export/${schoolIdToUse}?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Export failed');
+      }
+      
+      // Create blob from response
+      const blob = await response.blob();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `statistics_${schoolIdToUse}_${Date.now()}.${format === 'pdf' ? 'pdf' : 'xlsx'}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      setLoading(false);
+    } catch (err) {
+      console.error('Export error:', err);
+      setError(`Export failed: ${err.message}`);
+      setLoading(false);
+    }
   };
 
   // Chart data configurations
@@ -184,16 +241,21 @@ const StatisticsPage = () => {
         <form onSubmit={handleFetchStats} className="stats-filter-form">
           <div className="form-row">
             <div className="form-group half-width">
-              <label htmlFor="schoolId" className="form-label">School ID</label>
-              <input
-                type="number"
+              <label htmlFor="schoolId" className="form-label">School</label>
+              <select
                 id="schoolId"
                 name="schoolId"
                 className="form-input"
                 value={schoolId}
                 onChange={(e) => setSchoolId(e.target.value)}
                 required
-              />
+              >
+                {schools.map(school => (
+                  <option key={school.id} value={school.id}>
+                    {school.name}
+                  </option>
+                ))}
+              </select>
             </div>
             
             <div className="form-group half-width">
@@ -263,8 +325,9 @@ const StatisticsPage = () => {
           </div>
 
           <div className="stats-actions">
-            <button className="btn btn-outline">Export to PDF</button>
-            <button className="btn btn-outline">Export to Excel</button>
+            <button className="btn btn-outline" onClick={() => handleExport('xlsx')}>
+              Export to Excel
+            </button>
           </div>
         </div>
       )}

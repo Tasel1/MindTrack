@@ -3,6 +3,7 @@
 Auto-generated from all feature plans. Last updated: 2026-02-15
 
 ## Active Technologies
+- PostgreSQL database with structured tables for users, schools, entries, emotions, tags (001-emotion-diary-platform)
 
 - JavaScript/TypeScript (ES2022), Node.js v20.x LTS (001-emotion-diary-platform)
 
@@ -23,6 +24,7 @@ npm test && npm run lint
 JavaScript/TypeScript (ES2022), Node.js v20.x LTS: Follow standard conventions
 
 ## Recent Changes
+- 001-emotion-diary-platform: Added JavaScript/TypeScript (ES2022), Node.js v20.x LTS
 
 - 001-emotion-diary-platform: Added JavaScript/TypeScript (ES2022), Node.js v20.x LTS
 

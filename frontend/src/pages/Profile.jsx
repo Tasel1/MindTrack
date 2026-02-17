@@ -7,8 +7,7 @@ const ProfilePage = () => {
   const [profile, setProfile] = useState({});
   const [formData, setFormData] = useState({
     first_name: '',
-    last_name: '',
-    parent_email: ''
+    last_name: ''
   });
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -23,8 +22,7 @@ const ProfilePage = () => {
         setProfile(response.data);
         setFormData({
           first_name: response.data.first_name || '',
-          last_name: response.data.last_name || '',
-          parent_email: response.data.parent_email || ''
+          last_name: response.data.last_name || ''
         });
       } catch (err) {
         setError(err.message);
@@ -109,21 +107,6 @@ const ProfilePage = () => {
               </div>
             </div>
             
-            {user?.role === 'student' && (
-              <div className="form-group">
-                <label htmlFor="parent_email" className="form-label">Parent/Guardian Email</label>
-                <input
-                  type="email"
-                  id="parent_email"
-                  name="parent_email"
-                  className="form-input"
-                  value={formData.parent_email}
-                  onChange={handleChange}
-                  placeholder="Required for users under 13"
-                />
-              </div>
-            )}
-            
             <div className="form-actions">
               <button 
                 type="submit" 
@@ -139,8 +122,7 @@ const ProfilePage = () => {
                   setEditing(false);
                   setFormData({
                     first_name: profile.first_name || '',
-                    last_name: profile.last_name || '',
-                    parent_email: profile.parent_email || ''
+                    last_name: profile.last_name || ''
                   });
                 }}
               >
@@ -180,13 +162,6 @@ const ProfilePage = () => {
                 </div>
               )}
               
-              {profile.parent_email && (
-                <div className="info-item">
-                  <strong>Parent/Guardian Email:</strong>
-                  <span>{profile.parent_email}</span>
-                </div>
-              )}
-              
               <div className="info-item">
                 <strong>Member Since:</strong>
                 <span>{new Date(profile.created_at).toLocaleDateString()}</span>
@@ -199,13 +174,6 @@ const ProfilePage = () => {
                 onClick={() => setEditing(true)}
               >
                 Edit Profile
-              </button>
-              
-              <button 
-                className="btn btn-outline"
-                onClick={logout}
-              >
-                Logout
               </button>
             </div>
           </div>

@@ -6,9 +6,13 @@ class AuthController {
   // Register a new user
   static async register(req, res) {
     try {
+      console.log('=== REGISTER REQUEST ===');
+      console.log('Request body:', JSON.stringify(req.body, null, 2));
+      
       // Check for validation errors
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
+        console.log('Validation errors:', JSON.stringify(errors.array(), null, 2));
         return res.status(400).json({
           success: false,
           error: {
@@ -20,9 +24,11 @@ class AuthController {
       }
 
       const userData = req.body;
-      
+      console.log('Processed user data:', JSON.stringify(userData, null, 2));
+
       // Validate required fields
       if (!userData.email || !userData.password || !userData.first_name || !userData.last_name || !userData.role) {
+        console.log('Missing required fields');
         return res.status(400).json({
           success: false,
           error: {
@@ -34,6 +40,7 @@ class AuthController {
 
       // Validate role is either 'student' or 'psychologist'
       if (!['student', 'psychologist'].includes(userData.role)) {
+        console.log('Invalid role:', userData.role);
         return res.status(400).json({
           success: false,
           error: {
@@ -43,9 +50,10 @@ class AuthController {
         });
       }
 
-      // For students, validate required fields
+      // Validate role-specific required fields
       if (userData.role === 'student') {
         if (!userData.school_id || !userData.date_of_birth) {
+          console.log('Student missing required fields: school_id or date_of_birth');
           return res.status(400).json({
             success: false,
             error: {
@@ -54,9 +62,19 @@ class AuthController {
             }
           });
         }
+      } else if (userData.role === 'psychologist') {
+        // Psychologists don't need school_id or date_of_birth
+        // Remove these fields if they exist (even if empty)
+        console.log('Psychologist registration - removing school_id and date_of_birth');
+        delete userData.school_id;
+        delete userData.date_of_birth;
       }
 
+      console.log('Final user data for registration:', JSON.stringify(userData, null, 2));
+      
       const result = await AuthService.register(userData);
+      
+      console.log('Registration successful:', result.user.email);
       
       res.status(201).json({
         success: true,
@@ -64,6 +82,10 @@ class AuthController {
         message: 'Registration successful'
       });
     } catch (error) {
+      console.error('=== REGISTER ERROR ===');
+      console.error('Error:', error);
+      console.error('Stack:', error.stack);
+      
       res.status(400).json({
         success: false,
         error: {

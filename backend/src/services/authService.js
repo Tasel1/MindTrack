@@ -5,35 +5,27 @@ const bcrypt = require('bcryptjs');
 class AuthService {
   // Register a new user
   static async register(userData) {
+    console.log('[AuthService] Registering user:', userData.email);
+    
     // Check if user already exists
     const existingUser = await User.findByEmail(userData.email);
     if (existingUser) {
+      console.log('[AuthService] Email already exists:', userData.email);
       throw new Error('Email already in use');
     }
 
-    // Validate age for minors
-    if (userData.date_of_birth) {
-      const birthDate = new Date(userData.date_of_birth);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-      
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-
-      // If user is under 13, parent email is required
-      if (age < 13 && !userData.parent_email) {
-        throw new Error('Parent email is required for users under 13 years old');
-      }
-    }
-
+    console.log('[AuthService] Creating user in database...');
+    
     // Create the user
     const newUser = await User.create(userData);
+    
+    console.log('[AuthService] User created successfully:', newUser.id);
 
     // Generate tokens
     const accessToken = generateAccessToken(newUser);
     const refreshToken = generateRefreshToken(newUser);
+    
+    console.log('[AuthService] Tokens generated');
 
     return {
       user: {

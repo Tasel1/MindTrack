@@ -1,7 +1,7 @@
-# Quickstart Guide: MindTrack Emotion Diary Platform
+# Quickstart Guide: MindTrack Analytics
 
 ## Overview
-This guide provides instructions for setting up and running the MindTrack emotion diary platform locally for development and testing purposes.
+This guide provides instructions for setting up and running the MindTrack Analytics platform locally for development and testing purposes.
 
 ## Prerequisites
 - Node.js v20.x or higher
@@ -17,16 +17,14 @@ git clone https://github.com/your-org/mindtrack.git
 cd mindtrack
 ```
 
-### 2. Set Up Environment Variables
-Copy the example environment files and configure them for your local setup:
-
+### 2. Backend Setup
 ```bash
-# Backend
 cd backend
-cp .env.example .env
+npm install
 ```
 
-Edit the `.env` file with your local configuration:
+#### Environment Configuration
+Create a `.env` file in the `backend` directory:
 ```env
 NODE_ENV=development
 PORT=5000
@@ -37,126 +35,82 @@ BCRYPT_ROUNDS=12
 CORS_ORIGIN=http://localhost:3000
 ```
 
+#### Database Setup
 ```bash
-# Frontend
-cd ../frontend
-cp .env.example .env
+# Create the database
+createdb mindtrack_dev
+
+# Run migrations
+npm run migrate
+
+# (Optional) Seed sample data
+npm run seed
 ```
 
-Edit the frontend `.env` file:
+#### Start Backend Server
+```bash
+npm run dev
+```
+
+Backend will be available at: `http://localhost:5000`
+
+### 3. Frontend Setup
+```bash
+cd ../frontend
+npm install
+```
+
+#### Environment Configuration
+Create a `.env` file in the `frontend` directory:
 ```env
 VITE_API_BASE_URL=http://localhost:5000/api/v1
-VITE_APP_TITLE=MindTrack
+VITE_APP_TITLE=MindTrack Analytics
 ```
 
-### 3. Install Dependencies
-
-#### Backend Setup
+#### Start Frontend Server
 ```bash
-cd backend
-npm install
-```
-
-#### Frontend Setup
-```bash
-cd frontend
-npm install
-```
-
-### 4. Set Up Database
-
-#### Create Database
-```bash
-# Connect to PostgreSQL as superuser
-psql -U postgres
-
-# Create databases
-CREATE DATABASE mindtrack_dev;
-CREATE DATABASE mindtrack_test;
-
-# Create user and grant privileges (optional but recommended)
-CREATE USER mindtrack_user WITH PASSWORD 'secure_password';
-GRANT ALL PRIVILEGES ON DATABASE mindtrack_dev TO mindtrack_user;
-GRANT ALL PRIVILEGES ON DATABASE mindtrack_test TO mindtrack_user;
-
-# Exit psql
-\q
-```
-
-#### Run Migrations
-```bash
-cd backend
-npm run migrate  # or node migrations/run-migrations.js
-```
-
-#### Seed Reference Data (Optional)
-```bash
-npm run seed  # or node seeds/seed-data.js
-```
-
-### 5. Run the Applications
-
-#### Backend Server
-```bash
-cd backend
 npm run dev
 ```
-The backend server will start on `http://localhost:5000`.
 
-#### Frontend Server
-```bash
-cd frontend
-npm run dev
-```
-The frontend server will start on `http://localhost:3000`.
+Frontend will be available at: `http://localhost:3000`
 
-## Development Workflow
+## Default Test Accounts
 
-### Running Tests
-```bash
-# Backend tests
-cd backend
-npm test
+After seeding, you can login with these test accounts:
 
-# Frontend tests
-cd frontend
-npm test
-```
+### Student Account
+- Email: `student@example.com`
+- Password: `Password123!`
+- Role: Student
+- School: Central High School
 
-### Running Linters
-```bash
-# Backend linting
-cd backend
-npm run lint
+### Psychologist Account
+- Email: `psychologist@example.com`
+- Password: `Password123!`
+- Role: Psychologist
+- School: Central High School
 
-# Frontend linting
-cd frontend
-npm run lint
-```
-
-### Building for Production
-```bash
-# Backend
-cd backend
-npm run build
-
-# Frontend
-cd frontend
-npm run build
-```
+### Administrator Account
+- Email: `admin@example.com`
+- Password: `Password123!`
+- Role: Administrator
+- Access: System-wide
 
 ## API Documentation
+
 The API is documented in the contracts directory:
 - API contracts: `specs/001-emotion-diary-platform/contracts/api-contracts.md`
 
 ## Database Schema
-The database schema is defined through migrations in:
+
+The database schema is defined through migrations:
 - Migrations: `backend/migrations/`
+- Data model: `specs/001-emotion-diary-platform/data-model.md`
 
 ## Key Features Walkthrough
 
 ### For Students
-1. Register with your school email
+1. Register with your school email and select your school
 2. Login to access your dashboard
 3. Create mood entries with emotions, intensity, notes, and tags
 4. View your mood history in a timeline
@@ -165,9 +119,17 @@ The database schema is defined through migrations in:
 
 ### For Psychologists
 1. Login with your psychologist credentials
-2. Access anonymized statistics for your assigned school
+2. Access anonymized statistics for your school
 3. View emotion distribution among students
-4. Export statistics to PDF or Excel for reporting
+4. Compare different classes/grades
+5. Export statistics to Excel for reporting
+
+### For Administrators
+1. Login with administrator credentials
+2. View aggregated statistics across all schools
+3. Compare schools side-by-side
+4. Filter by district or specific schools
+5. Export cross-school reports to Excel
 
 ## Troubleshooting
 
@@ -180,7 +142,7 @@ The database schema is defined through migrations in:
 
 #### Authentication Issues
 - Verify JWT secrets are properly set
-- Check that httpOnly cookies are enabled in browser
+- Check that tokens are being stored correctly
 - Ensure CORS is properly configured
 
 #### Frontend Build Issues
@@ -188,19 +150,32 @@ The database schema is defined through migrations in:
 - Delete node_modules and reinstall: `rm -rf node_modules && npm install`
 
 ### Useful Commands
+
 ```bash
-# Reset database (dev only)
-npm run reset-db
+# Backend
+cd backend
+npm run migrate      # Run database migrations
+npm run seed         # Seed sample data
+npm run lint         # Run ESLint
+npm test             # Run tests
 
-# Generate test data
-npm run generate-test-data
-
-# Check system status
-npm run health-check
+# Frontend
+cd frontend
+npm run build        # Build for production
+npm run lint         # Run ESLint
+npm test             # Run tests
 ```
+
+## Development Workflow
+
+1. Make changes to backend or frontend code
+2. Hot reload will automatically update the running application
+3. Test changes in browser
+4. Run tests to ensure no regressions
+5. Commit changes with descriptive messages
 
 ## Next Steps
 1. Explore the API endpoints in Postman or similar tool
-2. Review the data models in `specs/001-emotion-diary-platform/data-model.md`
-3. Look at the task breakdown in `specs/001-emotion-diary-platform/tasks.md` for implementation details
-4. Check the research findings in `specs/001-emotion-diary-platform/research.md` for architectural decisions
+2. Review the data model in `specs/001-emotion-diary-platform/data-model.md`
+3. Look at the task breakdown in `specs/001-emotion-diary-platform/tasks.md`
+4. Check the research findings in `specs/001-emotion-diary-platform/research.md`

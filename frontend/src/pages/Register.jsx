@@ -11,8 +11,7 @@ const RegisterPage = () => {
     last_name: '',
     role: 'student', // Default to student
     school_id: '',
-    date_of_birth: '',
-    parent_email: ''
+    date_of_birth: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -39,8 +38,14 @@ const RegisterPage = () => {
       return;
     }
 
-    // Prepare data for submission
+    // Prepare data for submission based on role
     const { confirmPassword, ...submissionData } = formData;
+    
+    // For psychologists, don't send school_id and date_of_birth
+    if (formData.role === 'psychologist') {
+      delete submissionData.school_id;
+      delete submissionData.date_of_birth;
+    }
 
     try {
       await register(submissionData);
@@ -51,19 +56,6 @@ const RegisterPage = () => {
       setLoading(false);
     }
   };
-
-  // Show parent email field if user is under 13
-  const showParentEmail = formData.date_of_birth && (() => {
-    const birthDate = new Date(formData.date_of_birth);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return age < 13;
-  })();
 
   return (
     <div className="container">
@@ -184,22 +176,6 @@ const RegisterPage = () => {
                   required
                 />
               </div>
-              
-              {showParentEmail && (
-                <div className="form-group">
-                  <label htmlFor="parent_email" className="form-label">Parent/Guardian Email</label>
-                  <input
-                    type="email"
-                    id="parent_email"
-                    name="parent_email"
-                    className="form-input"
-                    value={formData.parent_email}
-                    onChange={handleChange}
-                    required
-                  />
-                  <small className="form-help">Required for users under 13 years old</small>
-                </div>
-              )}
             </>
           )}
           

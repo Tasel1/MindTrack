@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
+import Header from './components/Header';
 import './App.css'; // Импортируем стили
 
 // Import pages
@@ -8,6 +9,7 @@ import HomePage from './pages/Home';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
 import DashboardPage from './pages/Dashboard';
+import PsychologistDashboard from './pages/PsychologistDashboard';
 import EntriesPage from './pages/Entries';
 import CreateEntryPage from './pages/CreateEntry';
 import EditEntryPage from './pages/EditEntry';
@@ -30,26 +32,47 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   return children;
 };
 
+// Role-based Dashboard Redirect
+const DashboardRedirect = () => {
+  const { user, isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (user?.role === 'psychologist') {
+    return <Navigate to="/statistics" />;
+  }
+  
+  return <DashboardPage />;
+};
+
 // Main App Component
 function App() {
   return (
     <AuthProvider>
       <div className="App">
+        <Header />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           
-          {/* Protected Routes - Students */}
+          {/* Dashboard Route - Role-based redirect */}
+          <Route path="/dashboard" element={<DashboardRedirect />} />
+          
+          {/* Psychologist Dashboard */}
           <Route 
-            path="/dashboard" 
+            path="/psychologist-dashboard" 
             element={
-              <ProtectedRoute allowedRoles={['student', 'psychologist']}>
-                <DashboardPage />
+              <ProtectedRoute allowedRoles={['psychologist']}>
+                <PsychologistDashboard />
               </ProtectedRoute>
             } 
           />
+          
+          {/* Protected Routes - Students */}
           <Route 
             path="/entries" 
             element={

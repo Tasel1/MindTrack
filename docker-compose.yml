@@ -31,7 +31,7 @@ services:
       SESSION_TIMEOUT_MINUTES: 30
       BACKUP_RETENTION_DAYS: 30
     ports:
-      - "5001:5000"
+      - "5002:5000"
     depends_on:
       db:
         condition: service_healthy
@@ -47,10 +47,10 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     environment:
-      VITE_API_BASE_URL: http://localhost:5001/api/v1
+      VITE_API_BASE_URL: http://localhost:5002/api/v1
       VITE_APP_TITLE: MindTrack
     ports:
-      - "3001:3000"
+      - "3000:3000"
     depends_on:
       - backend
     restart: always

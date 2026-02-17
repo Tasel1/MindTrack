@@ -30,7 +30,7 @@ class UserService {
     }
 
     // Only allow certain fields to be updated
-    const allowedUpdates = ['first_name', 'last_name', 'parent_email'];
+    const allowedUpdates = ['first_name', 'last_name'];
     const filteredUpdates = {};
 
     for (const [key, value] of Object.entries(updates)) {
@@ -41,23 +41,6 @@ class UserService {
 
     if (Object.keys(filteredUpdates).length === 0) {
       throw new Error('No valid fields to update');
-    }
-
-    // Validate age for minors if parent email is being updated
-    if (filteredUpdates.parent_email && user.date_of_birth) {
-      const birthDate = new Date(user.date_of_birth);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-      
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-
-      // If user is under 13, parent email is required
-      if (age < 13 && !filteredUpdates.parent_email) {
-        throw new Error('Parent email is required for users under 13 years old');
-      }
     }
 
     await user.update(filteredUpdates);
@@ -71,7 +54,6 @@ class UserService {
       role: user.role,
       school_id: user.school_id,
       date_of_birth: user.date_of_birth,
-      parent_email: user.parent_email,
       created_at: user.created_at,
       updated_at: user.updated_at
     };

@@ -1,14 +1,14 @@
-# Research: MindTrack Emotion Diary Platform
+# Research: MindTrack Analytics
 
 ## Overview
-This document contains research findings for the MindTrack emotion diary platform implementation, focusing on technology decisions, best practices, and solutions to address unknowns identified in the technical context.
+This document contains research findings for the MindTrack Analytics implementation, focusing on technology decisions, best practices, and solutions to support the new three-role system (Student/Psychologist/Administrator).
 
 ## Technology Decisions
 
 ### Frontend Architecture
 **Decision**: Use React with functional components and hooks, combined with React Router for navigation and CSS Modules for styling.
 
-**Rationale**: React is the most widely adopted frontend library with extensive community support and resources. Functional components with hooks provide a modern, efficient approach to building UIs. CSS Modules offer scoped styling without the complexity of Tailwind CSS, meeting the requirement for clean CSS without external component libraries.
+**Rationale**: React is the most widely adopted frontend library with extensive community support. Functional components with hooks provide a modern, efficient approach to building UIs. CSS Modules offer scoped styling without the complexity of Tailwind CSS, meeting the requirement for clean CSS without external component libraries.
 
 **Alternatives considered**:
 - Vue.js: Popular alternative but less ecosystem support for this project's specific needs
@@ -29,103 +29,97 @@ This document contains research findings for the MindTrack emotion diary platfor
 - D3.js: More powerful but overly complex for this use case
 - Recharts: Good option but Chart.js has simpler API for basic charting needs
 
-### Calendar Component
-**Decision**: Use react-calendar library for date selection and visualization.
-
-**Rationale**: react-calendar is a lightweight, customizable solution that meets the requirements for displaying mood entries on specific dates. It provides good accessibility features and is easier to customize than building from scratch.
-
-**Alternatives considered**:
-- Building custom calendar: Would require significant development time
-- FullCalendar: More feature-rich than needed for this application
-
 ### Backend Architecture
 **Decision**: Use Node.js with Express framework following MVC pattern.
 
 **Rationale**: Node.js with Express provides a lightweight, flexible backend solution that pairs well with the React frontend. The MVC pattern ensures proper separation of concerns and maintainability.
 
 ### Authentication Strategy
-**Decision**: JWT (JSON Web Tokens) with access and refresh tokens stored in httpOnly cookies.
+**Decision**: JWT (JSON Web Tokens) with access and refresh tokens stored in httpOnly cookies or localStorage.
 
-**Rationale**: JWT with httpOnly cookies provides strong security against XSS attacks while maintaining stateless authentication. Using both access and refresh tokens balances security with user experience by having short-lived access tokens and longer-lived refresh tokens.
+**Rationale**: JWT with role-based access control provides strong security while maintaining stateless authentication. Using both access and refresh tokens balances security with user experience.
 
-**Alternatives considered**:
-- Session-based authentication: Would require server-side session storage
-- Storing tokens in localStorage: Vulnerable to XSS attacks
+### Database Schema
+**Decision**: PostgreSQL with normalized schema including schools, users, entries, emotions, tags, and entry_tags tables.
 
-### Database Migration Strategy
-**Decision**: Use raw SQL files for database migrations managed by a custom script.
-
-**Rationale**: Raw SQL provides full control over database schema changes and is transparent in what changes are being applied. For this project size, it's simpler than ORM-based migrations while still being manageable.
-
-**Alternatives considered**:
-- Knex.js: Good option but adds another dependency
-- Sequelize migrations: Would tie us to Sequelize ORM
-
-### Security Measures
-**Decision**: Implement multiple layers of security including bcrypt for password hashing, input validation, rate limiting, and proper CORS configuration.
-
-**Rationale**: Given the application handles sensitive data for minors, multiple security layers are essential. bcrypt is the standard for password hashing in Node.js applications.
+**Rationale**: PostgreSQL provides robust relational data modeling, excellent performance for analytical queries, and strong data integrity guarantees. The normalized schema ensures data consistency and reduces redundancy.
 
 ## Best Practices Researched
 
-### React Best Practices
-- Component composition over inheritance
-- Proper use of keys in lists
-- Memoization techniques to prevent unnecessary re-renders
-- Custom hooks for reusable logic
-- Proper error boundaries for graceful error handling
+### Multi-Tenant Architecture
+**Decision**: School-based multi-tenancy with row-level security through user-school associations.
 
-### Node.js/Express Best Practices
-- Middleware organization and error handling
-- Proper request validation and sanitization
-- Environment variable management
-- Logging strategies
-- API versioning considerations
+**Rationale**: Each school's data is logically separated through foreign key relationships, ensuring psychologists see only their school's data while administrators can access aggregated data across all schools.
 
-### Database Best Practices
-- Proper indexing strategies for query optimization
-- Connection pooling for performance
-- SQL injection prevention through parameterized queries
-- Data normalization while considering performance trade-offs
+### Data Anonymization
+**Decision**: Aggregate statistics computed at query time with no student identifiers included in results.
 
-### Security Best Practices
-- Input validation and sanitization at all entry points
-- Proper HTTP headers for security (CSP, HSTS, etc.)
-- Rate limiting to prevent abuse
-- Secure session/token management
-- Regular security audits and updates
+**Rationale**: Computing statistics on-the-fly ensures data is always current and no cached data can accidentally expose identifiers. All aggregation queries use COUNT, AVG, GROUP BY without selecting user-specific fields.
+
+### Role-Based Access Control (RBAC)
+**Decision**: Three distinct roles (Student, Psychologist, Administrator) with middleware-based authorization.
+
+**Rationale**: Clear separation of concerns with each role having specific permissions:
+- **Student**: CRUDL on own entries only
+- **Psychologist**: Read-only anonymized statistics for assigned school
+- **Administrator**: Read-only aggregated statistics across all schools
 
 ## Solutions to Unknowns
 
-### Performance Requirements
-**Unknown**: How many concurrent users should the system support?
-**Solution**: Based on the functional requirement FR-017, the system should support up to 500 concurrent users. This will guide capacity planning and performance testing.
+### School Assignment
+**Unknown**: How should users be associated with schools?
+**Solution**: 
+- Students select school during registration (required field)
+- Psychologists are assigned to a specific school by administrator
+- Administrators have system-wide access without school restriction
 
-### Data Retention Policy
-**Unknown**: How long should student data be retained?
-**Solution**: Based on the functional requirement FR-016, student data will be retained until the student graduates or turns 18, with deletion available upon parent request. This addresses COPPA compliance requirements.
+### Class/Grade Comparisons
+**Unknown**: How to implement class comparisons for psychologists?
+**Solution**: Add optional "class" or "grade" field to user profile, aggregate statistics by class/grade within school, display as comparative bar charts.
 
-### Responsive Design Approach
-**Unknown**: How should responsive design be implemented?
-**Solution**: Use CSS Modules with responsive units (%, vw, vh, em, rem) and media queries to ensure the application works across mobile, tablet, and desktop devices as required by FR-014.
+### Cross-School Aggregation
+**Unknown**: How to aggregate data across multiple schools for administrators?
+**Solution**: Use SQL GROUP BY with school_id, compute statistics per school, then compute overall averages. Ensure minimum school size thresholds to prevent identification of individual students.
 
-## Architecture Patterns Researched
+## Security Considerations
 
-### Frontend Patterns
-- Container/Presentational Components: Separate data-fetching logic from UI rendering
-- Higher-Order Components: For cross-cutting concerns like authentication
-- Compound Components: For complex UI components with internal state
+### Data Privacy
+- All passwords hashed with bcryptjs (12 rounds)
+- JWT tokens with short expiration (15 minutes for access, 7 days for refresh)
+- Role verification on every API request
+- School isolation enforced at database query level
 
-### Backend Patterns
-- Service Layer Pattern: Separate business logic from controllers
-- Repository Pattern: Abstract data access logic
-- Middleware Pattern: Handle cross-cutting concerns like authentication and validation
+### Anonymization Thresholds
+- Minimum 5 students per school before statistics are displayed
+- Suppress categories with fewer than 5 entries
+- Round percentages to nearest whole number to prevent reverse engineering
 
-### API Design Patterns
-- RESTful principles for resource-based endpoints
-- Proper HTTP status codes for different response scenarios
-- Consistent error response format
-- Pagination for large datasets
+## Performance Optimization
+
+### Database Indexing
+- Index on user_id for entries table (fast student queries)
+- Index on school_id for users table (fast school queries)
+- Index on date for entries table (fast date range queries)
+- Composite index on (school_id, date) for psychologist queries
+
+### Query Optimization
+- Use materialized views for expensive cross-school aggregations
+- Cache administrator dashboard results for 5 minutes
+- Paginate student entry lists (10-50 per page)
+
+## Compliance Requirements
+
+### COPPA Compliance
+- Parental consent required for users under 13
+- Data retention until student graduates or turns 18
+- Deletion available upon parent request
+- No third-party data sharing
+
+### FERPA Compliance
+- Educational records protected
+- Access limited to authorized personnel
+- Audit logging of all data access
+- No personally identifiable information in statistics
 
 ## Conclusion
-The research phase has resolved all unknowns from the technical context and established a solid foundation for implementing the MindTrack emotion diary platform. The chosen technologies align with the specified requirements while following industry best practices for security, performance, and maintainability.
+The research phase has resolved all unknowns from the technical context and established a solid foundation for implementing MindTrack Analytics. The chosen technologies align with the specified requirements while following industry best practices for security, performance, and maintainability. The three-role system (Student/Psychologist/Administrator) is fully supported by the architecture.

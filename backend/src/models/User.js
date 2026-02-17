@@ -11,7 +11,6 @@ class User {
     this.role = userData.role;
     this.school_id = userData.school_id;
     this.date_of_birth = userData.date_of_birth;
-    this.parent_email = userData.parent_email;
     this.is_active = userData.is_active;
     this.created_at = userData.created_at;
     this.updated_at = userData.updated_at;
@@ -19,19 +18,28 @@ class User {
 
   // Create a new user
   static async create(userData) {
-    const { email, password, first_name, last_name, role, school_id, date_of_birth, parent_email } = userData;
+    const { email, password, first_name, last_name, role, school_id, date_of_birth } = userData;
     
     // Hash the password
     const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
     const password_hash = await bcrypt.hash(password, saltRounds);
 
     const query = `
-      INSERT INTO users (email, password_hash, first_name, last_name, role, school_id, date_of_birth, parent_email, is_active)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true)
-      RETURNING id, email, first_name, last_name, role, school_id, date_of_birth, parent_email, is_active, created_at, updated_at
+      INSERT INTO users (email, password_hash, first_name, last_name, role, school_id, date_of_birth, is_active)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, true)
+      RETURNING id, email, first_name, last_name, role, school_id, date_of_birth, is_active, created_at, updated_at
     `;
     
-    const values = [email, password_hash, first_name, last_name, role, school_id, date_of_birth, parent_email];
+    // For psychologists, school_id and date_of_birth are optional
+    const values = [
+      email, 
+      password_hash, 
+      first_name, 
+      last_name, 
+      role, 
+      role === 'student' ? school_id : null, 
+      role === 'student' ? date_of_birth : null
+    ];
     
     const result = await db.query(query, values);
     return new User(result.rows[0]);
@@ -58,7 +66,7 @@ class User {
 
   // Update user
   async update(updates) {
-    const allowedUpdates = ['first_name', 'last_name', 'parent_email'];
+    const allowedUpdates = ['first_name', 'last_name'];
     const updateFields = [];
     const values = [];
 

@@ -1,71 +1,76 @@
-# Data Model: MindTrack Emotion Diary Platform
+# Data Model: MindTrack Analytics
 
 ## Overview
-This document defines the data model for the MindTrack emotion diary platform, detailing entities, their attributes, relationships, and validation rules based on the feature specification.
+This document defines the data model for MindTrack Analytics, detailing entities, their attributes, relationships, and validation rules based on the feature specification.
 
 ## Entities
 
-### User
-Represents both students and psychologists in the system.
-
-**Fields**:
-- `id` (UUID/Integer): Unique identifier for the user
-- `email` (String): User's email address (unique, required)
-- `password_hash` (String): Hashed password using bcrypt (required)
-- `first_name` (String): User's first name (required)
-- `last_name` (String): User's last name (required)
-- `role` (Enum): User's role ('student' or 'psychologist') (required)
-- `school_id` (UUID/Integer): Reference to the school entity (required for students)
-- `date_of_birth` (Date): User's date of birth (required for students, for age verification)
-- `parent_email` (String): Parent's email for account verification (required for students under 13)
-- `is_active` (Boolean): Account status flag (default: true)
-- `created_at` (DateTime): Timestamp of account creation
-- `updated_at` (DateTime): Timestamp of last update
-
-**Validation Rules**:
-- Email must be valid email format
-- Password must meet minimum strength requirements (8+ chars, mixed case, number, special char)
-- Role must be one of 'student' or 'psychologist'
-- Date of birth must be in the past
-- For students: parent_email required if under 13 years old
-
 ### School
-Represents an educational institution with associated students and aggregate statistics.
+Represents an educational institution with associated students and psychologists.
 
 **Fields**:
-- `id` (UUID/Integer): Unique identifier for the school
-- `name` (String): Name of the school (required)
-- `address` (String): Physical address of the school
-- `contact_email` (String): Administrative contact email
-- `contact_phone` (String): Administrative contact phone
-- `created_at` (DateTime): Timestamp of school creation
-- `updated_at` (DateTime): Timestamp of last update
+- `id` (SERIAL PRIMARY KEY): Unique identifier for the school
+- `name` (VARCHAR(255) NOT NULL UNIQUE): Name of the school
+- `address` (TEXT): Physical address of the school
+- `contact_email` (VARCHAR(255)): Administrative contact email
+- `contact_phone` (VARCHAR(50)): Administrative contact phone
+- `district_id` (INTEGER): Optional district/region identifier for administrator grouping
+- `created_at` (TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP)
+- `updated_at` (TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP)
 
 **Validation Rules**:
-- Name must be provided and not empty
+- Name must be provided and unique
 - Contact email must be valid email format if provided
+- District ID is optional (for administrators who need to group schools)
+
+### User
+Represents all system users (students, psychologists, administrators).
+
+**Fields**:
+- `id` (SERIAL PRIMARY KEY): Unique identifier for the user
+- `email` (VARCHAR(255) UNIQUE NOT NULL): User's email address
+- `password_hash` (VARCHAR(255) NOT NULL): Hashed password using bcryptjs
+- `first_name` (VARCHAR(100) NOT NULL): User's first name
+- `last_name` (VARCHAR(100) NOT NULL): User's last name
+- `role` (VARCHAR(20) NOT NULL): User's role ('student', 'psychologist', 'administrator')
+- `school_id` (INTEGER REFERENCES schools(id)): Associated school (NULL for administrators)
+- `date_of_birth` (DATE): User's date of birth (required for students)
+- `class_grade` (VARCHAR(50)): Optional class or grade level (for student comparisons)
+- `parent_email` (VARCHAR(255)): Parent's email for students under 13
+- `is_active` (BOOLEAN DEFAULT TRUE): Account status flag
+- `created_at` (TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP)
+- `updated_at` (TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP)
+
+**Validation Rules**:
+- Email must be valid email format and unique
+- Password must meet strength requirements (8+ chars, mixed case, number, special char)
+- Role must be one of 'student', 'psychologist', or 'administrator'
+- Students must have school_id and date_of_birth
+- Psychologists must have school_id
+- Administrators have NULL school_id (system-wide access)
+- Parent email required for students under 13 years old
 
 ### Emotion
 Represents a predefined emotion type for mood entries.
 
 **Fields**:
-- `id` (UUID/Integer): Unique identifier for the emotion
-- `name` (String): Name of the emotion in Russian (required)
-- `description` (Text): Brief description of the emotion (optional)
-- `color_code` (String): Hex color code for UI representation (optional)
-- `is_active` (Boolean): Whether this emotion is available for selection (default: true)
-- `created_at` (DateTime): Timestamp of emotion creation
-- `updated_at` (DateTime): Timestamp of last update
+- `id` (SERIAL PRIMARY KEY): Unique identifier for the emotion
+- `name` (VARCHAR(50) UNIQUE NOT NULL): Name of the emotion in Russian
+- `description` (TEXT): Brief description of the emotion
+- `color_code` (VARCHAR(7)): Hex color code for UI representation (e.g., #FFD700)
+- `is_active` (BOOLEAN DEFAULT TRUE): Whether this emotion is available for selection
+- `created_at` (TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP)
+- `updated_at` (TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP)
 
 **Predefined Values**:
-- радость (joy)
-- грусть (sadness)
-- гнев (anger)
-- страх (fear)
-- спокойствие (calmness)
-- удивление (surprise)
-- вина (guilt)
-- стыд (shame)
+- радость (joy) - #FFD700
+- грусть (sadness) - #4682B4
+- гнев (anger) - #DC143C
+- страх (fear) - #9370DB
+- спокойствие (calmness) - #32CD32
+- удивление (surprise) - #FFA500
+- вина (guilt) - #808080
+- стыд (shame) - #4B0082
 
 **Validation Rules**:
 - Name must be provided and unique
@@ -75,12 +80,12 @@ Represents a predefined emotion type for mood entries.
 Represents a predefined category for mood entries.
 
 **Fields**:
-- `id` (UUID/Integer): Unique identifier for the tag
-- `name` (String): Name of the tag in Russian (required)
-- `description` (Text): Brief description of the tag (optional)
-- `is_active` (Boolean): Whether this tag is available for selection (default: true)
-- `created_at` (DateTime): Timestamp of tag creation
-- `updated_at` (DateTime): Timestamp of last update
+- `id` (SERIAL PRIMARY KEY): Unique identifier for the tag
+- `name` (VARCHAR(50) UNIQUE NOT NULL): Name of the tag in Russian
+- `description` (TEXT): Brief description of the tag
+- `is_active` (BOOLEAN DEFAULT TRUE): Whether this tag is available for selection
+- `created_at` (TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP)
+- `updated_at` (TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP)
 
 **Predefined Values**:
 - учёба (study)
@@ -98,17 +103,17 @@ Represents a predefined category for mood entries.
 Represents a single mood recording with date, emotion, intensity, note, and tags.
 
 **Fields**:
-- `id` (UUID/Integer): Unique identifier for the entry
-- `user_id` (UUID/Integer): Reference to the user who created the entry (required)
-- `date` (Date): Date of the mood entry (default: current date)
-- `emotion_id` (UUID/Integer): Reference to the selected emotion (required)
-- `intensity` (Integer): Intensity level from 1-10 (required)
-- `note` (Text): Optional text note about the mood (optional)
-- `created_at` (DateTime): Timestamp of entry creation
-- `updated_at` (DateTime): Timestamp of last update
+- `id` (SERIAL PRIMARY KEY): Unique identifier for the entry
+- `user_id` (INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE): Reference to the student who created the entry
+- `date` (DATE NOT NULL DEFAULT CURRENT_DATE): Date of the mood entry
+- `emotion_id` (INTEGER NOT NULL REFERENCES emotions(id)): Reference to the selected emotion
+- `intensity` (INTEGER NOT NULL CHECK (intensity >= 1 AND intensity <= 10)): Intensity level from 1-10
+- `note` (TEXT): Optional text note about the mood (max 1000 characters)
+- `created_at` (TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP)
+- `updated_at` (TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP)
 
 **Validation Rules**:
-- User_id must reference an existing user
+- User_id must reference an existing student user
 - Date must be in the past or present
 - Emotion_id must reference an existing active emotion
 - Intensity must be between 1 and 10 inclusive
@@ -118,48 +123,58 @@ Represents a single mood recording with date, emotion, intensity, note, and tags
 Junction table linking entries to tags (many-to-many relationship).
 
 **Fields**:
-- `entry_id` (UUID/Integer): Reference to the entry (required)
-- `tag_id` (UUID/Integer): Reference to the tag (required)
-- `created_at` (DateTime): Timestamp of association creation
+- `entry_id` (INTEGER NOT NULL REFERENCES entries(id) ON DELETE CASCADE): Reference to the entry
+- `tag_id` (INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE): Reference to the tag
+- `created_at` (TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP)
 
 **Validation Rules**:
 - Both entry_id and tag_id must reference existing records
-- Combination of entry_id and tag_id must be unique
+- Combination of entry_id and tag_id must be unique (PRIMARY KEY)
 
 ## Relationships
 
+### School and User
+- **One-to-Many**: One school has many users (students and psychologists)
+- **Foreign Key**: `users.school_id` references `schools.id`
+- **Cascade**: ON DELETE RESTRICT (cannot delete school with users)
+- **Note**: Administrators have NULL school_id
+
 ### User and Entry
-- One-to-Many: One user can have many entries
-- Foreign key: `entries.user_id` references `users.id`
-- Cascade delete: When a user is deleted, their entries are also deleted
+- **One-to-Many**: One user (student) can have many entries
+- **Foreign Key**: `entries.user_id` references `users.id`
+- **Cascade**: ON DELETE CASCADE (entries deleted when user deleted)
 
 ### Emotion and Entry
-- One-to-Many: One emotion can be associated with many entries
-- Foreign key: `entries.emotion_id` references `emotions.id`
-- Restrict delete: Cannot delete an emotion if it's associated with entries
+- **One-to-Many**: One emotion can be associated with many entries
+- **Foreign Key**: `entries.emotion_id` references `emotions.id`
+- **Cascade**: ON DELETE RESTRICT (cannot delete emotion with entries)
 
 ### Entry and Tag
-- Many-to-Many: An entry can have multiple tags, and a tag can be associated with multiple entries
-- Junction table: `entry_tags` connects `entries` and `tags`
-- Foreign keys: `entry_tags.entry_id` references `entries.id`, `entry_tags.tag_id` references `tags.id`
-
-### User and School
-- Many-to-One: Many users (students) belong to one school
-- Foreign key: `users.school_id` references `schools.id`
-- Restrict delete: Cannot delete a school if it has associated students
+- **Many-to-Many**: An entry can have multiple tags, and a tag can be associated with multiple entries
+- **Junction Table**: `entry_tags` connects `entries` and `tags`
+- **Foreign Keys**: 
+  - `entry_tags.entry_id` references `entries.id`
+  - `entry_tags.tag_id` references `tags.id`
+- **Cascade**: ON DELETE CASCADE for both
 
 ## Indexes
 
+### Schools Table
+- Index on `name` (unique) for school lookup
+- Index on `district_id` for administrator filtering
+
 ### Users Table
-- Index on `email` (unique) for efficient login
+- Index on `email` (unique) for login
 - Index on `role` for role-based queries
 - Index on `school_id` for school-based filtering
+- Index on `class_grade` for class comparisons
 
 ### Entries Table
 - Index on `user_id` for user-specific queries
 - Index on `date` for chronological ordering
 - Index on `emotion_id` for emotion-based statistics
 - Composite index on `(user_id, date)` for user date-range queries
+- Composite index on `(school_id, date)` via JOIN for psychologist queries
 
 ### Tags Table
 - Index on `name` (unique) for tag lookup
@@ -167,18 +182,26 @@ Junction table linking entries to tags (many-to-many relationship).
 ### EntryTags Table
 - Index on `entry_id` for entry-tag associations
 - Index on `tag_id` for tag-entry associations
-- Composite index on `(entry_id, tag_id)` for unique constraint
 
 ## Constraints
 
 ### Referential Integrity
 - Foreign key constraints ensure data consistency across related tables
 - Cascade operations defined where appropriate (e.g., deleting user removes entries)
+- Restrict operations prevent deletion of referenced data (schools, emotions, tags)
 
 ### Business Logic
-- Students cannot view other students' entries
-- Psychologists can only access anonymized aggregate data
-- Data retention policy: entries deleted when user account is deleted or upon parent request
+- Students can only view/edit/delete their own entries
+- Psychologists can only access anonymized aggregate data for their school
+- Administrators can access aggregated data across all schools
+- Data anonymization enforced at query level (no user identifiers in statistics)
+- Minimum threshold of 5 students before statistics are displayed
+
+### Data Privacy
+- Passwords never stored in plain text (bcryptjs with 12 rounds)
+- No personal identifiers in statistic queries
+- Audit logging of all data access by psychologists and administrators
+- Data retention until student graduates or turns 18
 
 ## Audit Trail
-All entities include `created_at` and `updated_at` timestamps to track when records were created and modified.
+All entities include `created_at` and `updated_at` timestamps to track when records were created and modified. Additional audit logging table recommended for tracking data access by psychologists and administrators.
